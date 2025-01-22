@@ -1,18 +1,22 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class FieldGen : MonoBehaviour {
-    private GameObject m_scrap;
+    [SerializeField] private GameObject m_floorPrefab;
+    [SerializeField] private GameObject m_debrisPrefab;
 
+    [SerializeField] private int m_spawnerCount = 10;
     [SerializeField] private Vector2Int m_size = new(50, 50);
+
+    private float m_debrisCount => m_size.x * m_size.y;
+    
     private Dictionary<Vector3Int, GameObject> m_grid = new();
     
     private void Start()
     {
-        m_scrap = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        m_scrap.GetComponent<Renderer>().material.color = Color.gray; 
-        m_scrap.transform.localScale = new Vector3(1f, 2f, 1f); 
+        m_floorPrefab.transform.localScale = new Vector3(m_size.x / 10, 1f, (m_size.y / 10)+1);
+        
+        m_debrisPrefab.transform.localScale = new Vector3(1f, 2f, 1f); 
         
         var l_center = new Vector3(m_size.x / 2f, -1f, m_size.y / 2f);
         
@@ -24,14 +28,15 @@ public class FieldGen : MonoBehaviour {
                 
                 var l_pos = new Vector3Int(x, 0, z);
                 
-                GameObject l_tmp = Instantiate(m_scrap, transform);
+                GameObject l_tmp = Instantiate(m_debrisPrefab, transform);
                 l_tmp.transform.position = l_pos - l_center;
+
+                if (Random.Range(0f, 1f) < m_spawnerCount / m_debrisCount)
+                    l_tmp.GetComponent<Debris>().SetSpawner();
                 
                 m_grid.Add(l_pos, l_tmp);
             }
         }
-        
-        m_scrap.SetActive(false);
     }
 
     // Update is called once per frame
