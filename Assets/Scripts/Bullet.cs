@@ -14,18 +14,23 @@ public class Bullet : MonoBehaviour
         m_rb = GetComponent<Rigidbody>(); 
         m_rb.useGravity = false; 
         GetComponent<Collider>().isTrigger = true;
-        m_rb.velocity = transform.forward * m_speed; 
     }
 
     private void Update()
     {
         m_timer += Time.deltaTime;
         if (m_timer >= m_lifetime) 
-            gameObject.SetActive(false);
+            Die();
     }
 
-    private void OnTriggerEnter(Collider a_other) 
-    {
+    private void FixedUpdate() {
+        m_rb.velocity = transform.forward * m_speed; 
+    }
+
+    private void OnTriggerEnter(Collider a_other) {
+        if (a_other.TryGetComponent(out PlayerShooting _))
+            return; // ignore colliding with player
+        
         if (a_other.TryGetComponent(out Debris l_block)) 
             l_block.TakeDamage(m_damage);
         
@@ -34,11 +39,16 @@ public class Bullet : MonoBehaviour
         
         if(a_other.TryGetComponent(out SpawnerGen l_spawner))
             l_spawner.TakeDamage(m_damage);
-        
-        BulletPool.Instance.ReleaseBullet(gameObject);
+
+        Die();
     }
 
     private bool Tick() {
         return false;
     }
+
+    public void Die() {
+        m_timer = 0;
+        BulletPool.Instance.ReleaseBullet(gameObject);
+    } 
 }

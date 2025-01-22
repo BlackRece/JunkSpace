@@ -3,7 +3,8 @@ using UnityEngine;
 public class PlayerShooting : MonoBehaviour
 {
     [SerializeField] private BulletPool m_bulletPool; 
-    [SerializeField] private float m_fireRate = 0.2f; 
+    [SerializeField] private float m_fireRate = 0.2f;
+    [SerializeField] private float m_spawnPos = 0.75f;
     private float m_nextFireTime;
 
     private void Awake() {
@@ -19,10 +20,9 @@ public class PlayerShooting : MonoBehaviour
         }
     }
 
-    private void Shoot()
-    {
-        GameObject l_bullet = m_bulletPool.GetBullet(
-            transform.position + transform.forward * 1f,
-            transform.rotation); 
+    private void Shoot() {
+        Vector3 l_pos = transform.position + transform.forward * m_spawnPos;
+        Quaternion l_rot = transform.rotation; 
+        GameObject l_bullet = m_bulletPool.GetBullet(l_pos, l_rot); 
     }
 }
